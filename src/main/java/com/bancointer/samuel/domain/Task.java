@@ -7,9 +7,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 
 import org.springframework.data.annotation.CreatedDate;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,5 +43,10 @@ public class Task {
 	@Version
 	@Column(name = "VERSION")
 	private int version;
+	
+	@ManyToOne
+    @JoinColumn(name="ID_JOB", nullable=false)
+	@JsonIgnore
+	private Job job;
 
 }
