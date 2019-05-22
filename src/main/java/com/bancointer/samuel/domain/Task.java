@@ -1,0 +1,43 @@
+package com.bancointer.samuel.domain;
+
+import java.time.LocalDate;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Version;
+
+import org.springframework.data.annotation.CreatedDate;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Entity
+@Data
+@AllArgsConstructor
+public class Task {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "ID_TASK")
+	private Long id;
+
+	@Column(name = "NAME_TASK")
+	private String name;
+
+	@Column(name = "WEIGHT")
+	private Integer weight;
+
+	@Column(name = "IS_COMPLETED")
+	private Boolean completed;
+
+	@CreatedDate
+	private LocalDate createdAt;
+
+	@Version
+	@Column(name = "VERSION")
+	private int version;
+
+}
