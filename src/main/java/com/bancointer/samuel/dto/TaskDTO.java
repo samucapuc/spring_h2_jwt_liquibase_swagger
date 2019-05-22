@@ -1,7 +1,7 @@
 package com.bancointer.samuel.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +15,7 @@ public class TaskDTO implements Serializable {
 	private String name;
 	private Integer weight;
 	private Boolean completed;
-	private Date createdAt;
-	private int version;
+	private LocalDate createdAt;
+	private Integer version;
 	
 }
