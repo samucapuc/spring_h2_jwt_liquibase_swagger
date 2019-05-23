@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -38,12 +39,16 @@ public class TaskResourceTest extends SamuelApplicationTests {
 
 	@Mock
 	private MessageUtils message;
+	
+	@Mock
+	private ModelMapper mapper;
 
 	@Test
 	public void mustListTasks() {
 		when(taskRepository.findByCreatedAt(Mockito.any(LocalDate.class)))
 				.thenReturn(Arrays.asList(new Task(1, "First task", 5, true, LocalDate.now(), 0, null),
 						new Task(2, "Second task", 7, false, LocalDate.now(), 1, null)));
+		//when(mapper.map(Mockito.any(Task.class), Mockito.any(TaskDTO.class))).thenReturn(d);
 		List<TaskDTO> task = taskService.findByCreateAt(LocalDate.now());
 		assertNotNull(task);
 		assertNotEquals(task.size(), 1);

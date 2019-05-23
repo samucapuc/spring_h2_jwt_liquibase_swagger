@@ -30,6 +30,7 @@ public class TaskDTO implements Serializable {
 	private Boolean completed;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd")
+	@NotNull
 	private LocalDate createdAt;
 	
 	@NotNull
