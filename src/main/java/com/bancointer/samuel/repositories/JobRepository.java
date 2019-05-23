@@ -8,6 +8,5 @@ import com.bancointer.samuel.domain.Job;
 @Repository
 public interface JobRepository extends JpaRepository<Job, Integer> {
 
-
 	
 }
