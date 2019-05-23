@@ -71,6 +71,7 @@ public class TaskResource {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteTask( @PathVariable() @NotNull(message = "{param.required}") @Min(1)  Integer id) {
 		taskService.delete(id);
-		return ResponseEntity.ok().build();
+		//O verbo HTTP DELETE deve retornar o código 200 se inclui uma entidade no response ou 204 se não inclui
+		return ResponseEntity.noContent().build();
 	}
 }

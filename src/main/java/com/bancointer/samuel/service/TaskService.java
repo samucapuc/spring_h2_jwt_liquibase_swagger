@@ -67,15 +67,19 @@ public class TaskService {
 	}
 
 	public TaskDTO updateTask(TaskDTO taskDTO, Integer id) {
-		Task taskUpdate = converterDTOEntity(taskDTO);
-		Task taskDataBase = converterDTOEntity(findById(id));
-		BeanUtils.copyProperties(taskUpdate, taskDataBase);
-		return salveTask(converterEntityDTO(taskDataBase));
+		//Task informed by user
+		Task taskEntered = converterDTOEntity(taskDTO);
+		//to valid if task exists in data base
+		findById(id);
+		Task taskSave = new Task();
+		BeanUtils.copyProperties(taskEntered, taskSave);
+		taskSave.setId(id);
+		return salveTask(converterEntityDTO(taskSave));
 	}
 
 	@Transactional(readOnly = true)
 	public List<Task> findByName(String name) {
-		return taskRepository.findByName(name);
+		return taskRepository.findByNameIgnoreCase(name);
 	}
 
 	private void validDuplicateTask(TaskDTO taskDTO) {
@@ -87,7 +91,7 @@ public class TaskService {
 	}
 
 	private boolean isDuplicate(Task task, TaskDTO taskDTO) {
-		if (task.getName().equals(taskDTO.getName())
+		if (task.getName().toLowerCase().equals(taskDTO.getName().toLowerCase())
 				&& (taskDTO.getId() == null || !task.getId().equals(taskDTO.getId()))) {
 			return true;
 		}

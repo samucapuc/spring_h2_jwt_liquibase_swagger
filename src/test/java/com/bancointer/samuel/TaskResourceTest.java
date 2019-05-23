@@ -93,7 +93,7 @@ public class TaskResourceTest extends SamuelApplicationTests {
 	@Test(expected = ObjectDuplicateException.class)
 	public void mustValidDuplicatedTask() {
 		TaskDTO taskDTO = new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0);
-		when(taskRepository.findByName(Mockito.any(String.class)))
+		when(taskRepository.findByNameIgnoreCase(Mockito.any(String.class)))
 				.thenReturn(Arrays.asList(new Task(2, "First task", 8, false, LocalDate.now(), 0, null)))
 				.thenThrow(ObjectDuplicateException.class);
 		when(message.getMessageEnglish(Mockito.anyString(), Mockito.any(Object[].class)))

@@ -13,5 +13,5 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
 
 	List<Task> findByCreatedAt(LocalDate createDate);
 	Page<Task> findByCreatedAt(LocalDate createDate,Pageable page);
-	List<Task> findByName(String name);
+	List<Task> findByNameIgnoreCase(String name);
 }
