@@ -20,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import com.bancointer.samuel.converter.TaskConverter;
 import com.bancointer.samuel.domain.Task;
 import com.bancointer.samuel.dto.TaskDTO;
 import com.bancointer.samuel.exceptions.ObjectDuplicateException;
@@ -33,9 +32,6 @@ public class TaskResourceTest extends SamuelApplicationTests {
 
 	@InjectMocks
 	private TaskService taskService;
-
-	@Mock
-	private TaskConverter taskConverter;
 
 	@Mock
 	private TaskRepository taskRepository;
@@ -53,24 +49,24 @@ public class TaskResourceTest extends SamuelApplicationTests {
 		assertNotEquals(task.size(), 1);
 		assertEquals(task.size(), 2);
 	}
-	
+
 	@Test
 	public void mustListTasksPaginated() {
-		Pageable firstPageWithTwoElements = PageRequest.of(0, 2,Sort.by("name").ascending());
-		Page<Task> pageFound = new PageImpl<>(Arrays.asList(new Task(1, "First task", 5, true, LocalDate.now(), 0, null),
-				new Task(2, "Second task", 7, false, LocalDate.now(), 1, null)), firstPageWithTwoElements, 2);
-		when(taskRepository.findByCreatedAt(Mockito.any(LocalDate.class),Mockito.any(Pageable.class)))
+		Pageable firstPageWithTwoElements = PageRequest.of(0, 2, Sort.by("name").ascending());
+		Page<Task> pageFound = new PageImpl<>(
+				Arrays.asList(new Task(1, "First task", 5, true, LocalDate.now(), 0, null),
+						new Task(2, "Second task", 7, false, LocalDate.now(), 1, null)),
+				firstPageWithTwoElements, 2);
+		when(taskRepository.findByCreatedAt(Mockito.any(LocalDate.class), Mockito.any(Pageable.class)))
 				.thenReturn(pageFound);
-		Page<TaskDTO> taskPaged = taskService.findByCreateAtPagination(LocalDate.now(),firstPageWithTwoElements);
+		Page<TaskDTO> taskPaged = taskService.findByCreateAtPagination(LocalDate.now(), firstPageWithTwoElements);
 		assertEquals(pageFound.getNumberOfElements(), taskPaged.getNumberOfElements());
 	}
+
 	@Test
 	public void mustFindOneTask() {
-		Optional<Task> taskOptional = Optional.of(new Task(1, "First task", 5, true, LocalDate.now(), 0,null));
-		TaskDTO taskDTO = new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0);
-		when(taskRepository.findById(Mockito.any(Integer.class)))
-		.thenReturn(taskOptional);
-		when(taskConverter.converterEntityDTO(Mockito.any(Task.class))).thenReturn(taskDTO);
+		Optional<Task> taskOptional = Optional.of(new Task(1, "First task", 5, true, LocalDate.now(), 0, null));
+		when(taskRepository.findById(Mockito.any(Integer.class))).thenReturn(taskOptional);
 		TaskDTO task = taskService.findById(1);
 		assertNotNull(task);
 	}
@@ -78,22 +74,20 @@ public class TaskResourceTest extends SamuelApplicationTests {
 	@Test(expected = ObjectNotFoundException.class)
 	public void mustValidObjectNotFoundSearchTask() {
 		Optional<Task> taskOptional = Optional.empty();
-		when(taskRepository.findById(Mockito.any(Integer.class)))
-		.thenReturn(taskOptional)
-		.thenThrow(ObjectNotFoundException.class);
+		when(taskRepository.findById(Mockito.any(Integer.class))).thenReturn(taskOptional)
+				.thenThrow(ObjectNotFoundException.class);
 		when(message.getMessageEnglish(Mockito.anyString(), Mockito.any(Object[].class)))
-		.thenReturn("The requested resource Task could not be found with id 2");
+				.thenReturn("The requested resource Task could not be found with id 2");
 		taskService.findById(2);
 	}
+
 	@Test
 	public void mustCreateTask() {
 		TaskDTO taskDTO = new TaskDTO(2, "Second task", 6, true, LocalDate.now(), 0);
-		Task task = new Task(2, "Second task", 6, true, LocalDate.now(), 0,null);
-		when(taskConverter.converterEntityDTO(Mockito.any(Task.class))).thenReturn(taskDTO);
-		when(taskConverter.converterDTOEntity(Mockito.any(TaskDTO.class))).thenReturn(task);
+		Task task = new Task(2, "Second task", 6, true, LocalDate.now(), 0, null);
 		when(taskRepository.save(Mockito.any(Task.class))).thenReturn(task);
 		taskDTO = taskService.salveTask(taskDTO);
-		assertEquals(task.getId(),taskDTO.getId());
+		assertEquals(task.getId(), taskDTO.getId());
 	}
 
 	@Test(expected = ObjectDuplicateException.class)
@@ -110,31 +104,28 @@ public class TaskResourceTest extends SamuelApplicationTests {
 
 	@Test
 	public void mustUpdateTask() {
-		Task task = new Task(1, "First task", 5, true, LocalDate.now(), 0,null);
+		Task task = new Task(1, "First task", 5, true, LocalDate.now(), 0, null);
 		TaskDTO taskDTO1 = new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0);
 		TaskDTO taskDTO2 = new TaskDTO(1, "Third task", 5, true, LocalDate.now(), 0);
-		when(taskConverter.converterEntityDTO(Mockito.any(Task.class))).thenReturn(taskDTO2);
-		when(taskConverter.converterDTOEntity(Mockito.any(TaskDTO.class))).thenReturn(task);
 		when(taskRepository.save(Mockito.any(Task.class))).thenReturn(task);
 		taskDTO2 = taskService.salveTask(taskDTO1);
 		assertNotEquals(taskDTO2.getName(), taskDTO1.getName());
 	}
-	
+
 	@Test
 	public void mustDeleteTask() {
-		Optional<Task> taskOptional = Optional.of(new Task(1, "First task", 5, true, LocalDate.now(), 0,null));
-		when(taskRepository.findById(Mockito.any(Integer.class)))
-		.thenReturn(taskOptional);
+		Optional<Task> taskOptional = Optional.of(new Task(1, "First task", 5, true, LocalDate.now(), 0, null));
+		when(taskRepository.findById(Mockito.any(Integer.class))).thenReturn(taskOptional);
 		taskService.delete(1);
 	}
+
 	@Test(expected = ObjectNotFoundException.class)
 	public void mustValidObjectNotFoundDeleteTask() {
 		Optional<Task> taskOptional = Optional.empty();
-		when(taskRepository.findById(Mockito.any(Integer.class)))
-		.thenReturn(taskOptional)
-		.thenThrow(ObjectNotFoundException.class);
+		when(taskRepository.findById(Mockito.any(Integer.class))).thenReturn(taskOptional)
+				.thenThrow(ObjectNotFoundException.class);
 		when(message.getMessageEnglish(Mockito.anyString(), Mockito.any(Object[].class)))
-		.thenReturn("The requested resource Task could not be found with id 2");
+				.thenReturn("The requested resource Task could not be found with id 2");
 		taskService.delete(2);
 	}
 }

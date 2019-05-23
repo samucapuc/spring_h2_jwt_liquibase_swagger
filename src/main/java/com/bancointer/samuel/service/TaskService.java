@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bancointer.samuel.converter.TaskConverter;
 import com.bancointer.samuel.domain.Task;
 import com.bancointer.samuel.dto.TaskDTO;
 import com.bancointer.samuel.exceptions.ObjectDuplicateException;
@@ -25,19 +26,19 @@ import lombok.RequiredArgsConstructor;
 public class TaskService {
 
 	private final TaskRepository taskRepository;
-	private final TaskConverter taskConverter;
 	private final MessageUtils messageUtils;
+	private final ModelMapper mapper;
 	
 
 	@Transactional(readOnly = true)
 	public List<TaskDTO> findByCreateAt(LocalDate createDate) {
-		return taskRepository.findByCreatedAt(createDate).stream().map(t -> taskConverter.converterEntityDTO(t))
+		return taskRepository.findByCreatedAt(createDate).stream().map(this::converterEntityDTO)
 				.collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)
 	public Page<TaskDTO> findByCreateAtPagination(LocalDate createDate, Pageable page) {
-		return taskRepository.findByCreatedAt(createDate, page).map(t -> taskConverter.converterEntityDTO(t));
+		return taskRepository.findByCreatedAt(createDate, page).map(this::converterEntityDTO);
 	}
 	
 	@Transactional(readOnly = true)
@@ -45,7 +46,7 @@ public class TaskService {
 		TaskDTO taskDTO;
 		Optional<Task> taskOptional = taskRepository.findById(id);
 		if(taskOptional.isPresent()){
-			taskDTO=taskConverter.converterEntityDTO(taskOptional.get());
+			taskDTO=converterEntityDTO(taskOptional.get());
 		}else {
 			throw new ObjectNotFoundException(messageUtils.getMessageEnglish("resource.notfound",
 					new Object[] { messageUtils.getMessageEnglish("entity.task.name"), "id", id }));
@@ -55,12 +56,14 @@ public class TaskService {
 	
 	public TaskDTO salveTask(TaskDTO taskDTO) {
 		validDuplicateTask(taskDTO);
-		return taskConverter.converterEntityDTO(taskRepository.save(taskConverter.converterDTOEntity(taskDTO)));
+		return converterEntityDTO(taskRepository.save(converterDTOEntity(taskDTO)));
 	}
+	
 	public TaskDTO updateTask(TaskDTO taskDTO,Integer id) {
-		//Task task = taskConverter.converterDTOEntity(taskDTO);
-		taskDTO.setId(id);
-		return salveTask(taskDTO);
+		Task task = converterDTOEntity(findById(id));
+		Task result = new Task();
+		BeanUtils.copyProperties(task, result);
+		return salveTask(converterEntityDTO(result));
 	}
 	
 	@Transactional(readOnly = true)
@@ -85,6 +88,18 @@ public class TaskService {
 	}
 
 	public void delete(Integer id) {
-		taskRepository.delete(taskConverter.converterDTOEntity(findById(id)));
+		taskRepository.delete(converterDTOEntity(findById(id)));
+	}
+	
+	
+
+	private TaskDTO converterEntityDTO(Task task) {
+		TaskDTO taskDto = mapper.map(task, TaskDTO.class);
+	    return taskDto;
+	}
+	
+	private Task converterDTOEntity(TaskDTO taskDTO) {
+		Task task = mapper.map(taskDTO, Task.class);
+		return task;
 	}
 }

@@ -17,10 +17,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Task {
 
 	@Id
@@ -44,7 +46,7 @@ public class Task {
 	@Column(name = "VERSION")
 	private int version;
 	
-	@ManyToOne
+	@ManyToOne(optional = true)
     @JoinColumn(name="ID_JOB", nullable=false)
 	@JsonIgnore
 	private Job job;
