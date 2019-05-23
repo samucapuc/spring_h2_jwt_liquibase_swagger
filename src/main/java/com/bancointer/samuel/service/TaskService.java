@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bancointer.samuel.domain.Task;
 import com.bancointer.samuel.dto.TaskDTO;
+import com.bancointer.samuel.exceptions.InvalidResourceException;
 import com.bancointer.samuel.exceptions.ObjectDuplicateException;
 import com.bancointer.samuel.exceptions.ObjectNotFoundException;
 import com.bancointer.samuel.repositories.TaskRepository;
@@ -28,7 +29,6 @@ public class TaskService {
 	private final TaskRepository taskRepository;
 	private final MessageUtils messageUtils;
 	private final ModelMapper mapper;
-	
 
 	@Transactional(readOnly = true)
 	public List<TaskDTO> findByCreateAt(LocalDate createDate) {
@@ -40,37 +40,44 @@ public class TaskService {
 	public Page<TaskDTO> findByCreateAtPagination(LocalDate createDate, Pageable page) {
 		return taskRepository.findByCreatedAt(createDate, page).map(this::converterEntityDTO);
 	}
-	
+
 	@Transactional(readOnly = true)
 	public TaskDTO findById(Integer id) {
 		TaskDTO taskDTO;
 		Optional<Task> taskOptional = taskRepository.findById(id);
-		if(taskOptional.isPresent()){
-			taskDTO=converterEntityDTO(taskOptional.get());
-		}else {
+		if (taskOptional.isPresent()) {
+			taskDTO = converterEntityDTO(taskOptional.get());
+		} else {
 			throw new ObjectNotFoundException(messageUtils.getMessageEnglish("resource.notfound",
 					new Object[] { messageUtils.getMessageEnglish("entity.task.name"), "id", id }));
 		}
 		return taskDTO;
 	}
-	
+
+	public TaskDTO createTask(TaskDTO taskDTO) {
+		if (taskDTO.getId() != null) {
+			throw new InvalidResourceException(messageUtils.getMessageEnglish("resource.invalid"));
+		}
+		return salveTask(taskDTO);
+	}
+
 	public TaskDTO salveTask(TaskDTO taskDTO) {
 		validDuplicateTask(taskDTO);
 		return converterEntityDTO(taskRepository.save(converterDTOEntity(taskDTO)));
 	}
-	
-	public TaskDTO updateTask(TaskDTO taskDTO,Integer id) {
-		Task task = converterDTOEntity(findById(id));
-		Task result = new Task();
-		BeanUtils.copyProperties(task, result);
-		return salveTask(converterEntityDTO(result));
+
+	public TaskDTO updateTask(TaskDTO taskDTO, Integer id) {
+		Task taskUpdate = converterDTOEntity(taskDTO);
+		Task taskDataBase = converterDTOEntity(findById(id));
+		BeanUtils.copyProperties(taskUpdate, taskDataBase);
+		return salveTask(converterEntityDTO(taskDataBase));
 	}
-	
+
 	@Transactional(readOnly = true)
-	public List<Task> findByName(String name){
+	public List<Task> findByName(String name) {
 		return taskRepository.findByName(name);
 	}
-	
+
 	private void validDuplicateTask(TaskDTO taskDTO) {
 		List<Task> tasksWithSameName = findByName(taskDTO.getName());
 		if (tasksWithSameName.stream().anyMatch(t -> isDuplicate(t, taskDTO))) {
@@ -90,14 +97,12 @@ public class TaskService {
 	public void delete(Integer id) {
 		taskRepository.delete(converterDTOEntity(findById(id)));
 	}
-	
-	
 
 	private TaskDTO converterEntityDTO(Task task) {
 		TaskDTO taskDto = mapper.map(task, TaskDTO.class);
-	    return taskDto;
+		return taskDto;
 	}
-	
+
 	private Task converterDTOEntity(TaskDTO taskDTO) {
 		Task task = mapper.map(taskDTO, Task.class);
 		return task;

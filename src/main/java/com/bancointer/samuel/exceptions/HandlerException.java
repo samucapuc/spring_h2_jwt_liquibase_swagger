@@ -3,6 +3,7 @@ package com.bancointer.samuel.exceptions;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -28,6 +29,13 @@ public class HandlerException {
 		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.NOT_FOUND.value(),messageUtils.getMessageEnglish("resource.notfound.title"), e.getMessage(), messageUtils.getMessageEnglish("resource.notfound.details"),((ServletWebRequest)request).getRequest().getRequestURL().toString());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
 	}
+	@ExceptionHandler(InvalidResourceException.class)
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	@ResponseBody	
+	public ResponseEntity<StandardError> objectNotFound(InvalidResourceException e, WebRequest request) {
+		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),messageUtils.getMessageEnglish("resource.invalid.title"), e.getMessage(), messageUtils.getMessageEnglish("resource.invalid.details"),((ServletWebRequest)request).getRequest().getRequestURL().toString());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+	}
 	
 	@ExceptionHandler(ObjectDuplicateException.class)
 	@ResponseStatus(value = HttpStatus.CONFLICT)
@@ -43,6 +51,13 @@ public class HandlerException {
 		String message = e.getCause()!=null ? e.getCause().getLocalizedMessage() : e.getLocalizedMessage();
 		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),messageUtils.getMessageEnglish("error.conversion"), message, e.getMessage(),((ServletWebRequest)request).getRequest().getRequestURL().toString());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+	}
+	@ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	@ResponseBody	
+	public ResponseEntity<StandardError> ObjectOptimisticLockingError(ObjectOptimisticLockingFailureException e, WebRequest request) {
+		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.CONFLICT.value(),messageUtils.getMessageEnglish("error.concurrency.title"), messageUtils.getMessageEnglish("error.concurrency"), messageUtils.getMessageEnglish("error.concurrency.details"),((ServletWebRequest)request).getRequest().getRequestURL().toString());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(err);
 	}
 	
 }

@@ -1,6 +1,6 @@
 package com.bancointer.samuel.exceptions;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,33 +25,39 @@ import lombok.RequiredArgsConstructor;
 public class ConstraintViolationExceptionHandler {
 
 	private final MessageUtils messageUtils;
-	
+
 	@ExceptionHandler(MissingServletRequestParameterException.class)
-	protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,WebRequest request) {
+	protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
+			WebRequest request) {
 		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
 				messageUtils.getMessageEnglish("param.required.title"),
-				messageUtils.getMessageEnglish("param.required", new Object[] { ex.getParameterName().toString() }),
+				messageUtils.getMessageEnglish("param.required", new Object[] { ex.getParameterName() }),
 				((ServletWebRequest) request).getRequest().getRequestURL().toString(), request.getDescription(false));
 		return ResponseEntity.badRequest().body(err);
 	}
 
 	@ExceptionHandler(ConstraintViolationException.class)
 	protected ResponseEntity<?> handleConstraintViolationException(ConstraintViolationException ex,
-			HttpServletRequest request) {
-		try {
-			List<String> messages = ex.getConstraintViolations().stream().map(ConstraintViolation::getMessage)
-					.collect(Collectors.toList());
-			return new ResponseEntity<>(new ErrorResponse<>(messages), HttpStatus.BAD_REQUEST);
-		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponse<>(Arrays.asList(ex.getMessage())),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			WebRequest request) {
+		List<StandardError> listError = new ArrayList<StandardError>();
+		for (String error : ex.getConstraintViolations().stream().map(ConstraintViolation::getMessage)
+				.collect(Collectors.toList())) {
+			listError.add(new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
+					messageUtils.getMessageEnglish("error.validation.title"),
+					messageUtils.getMessageEnglish("error.validation", new Object[] { error }),
+					((ServletWebRequest) request).getRequest().getRequestURL().toString(),
+					request.getDescription(false)));
 		}
+		return new ResponseEntity<>(new ErrorResponse<>(listError), HttpStatus.BAD_REQUEST);
+
 	}
-	
+
 	@ExceptionHandler(IllegalArgumentException.class)
 	protected ResponseEntity<?> handleConstraintViolationException(IllegalArgumentException e,
 			HttpServletRequest request) {
-		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),messageUtils.getMessageEnglish("error.conversion"), e.getMessage(), e.getMessage(),((ServletWebRequest)request).getRequest().getRequestURL().toString());
+		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
+				messageUtils.getMessageEnglish("error.conversion"), e.getMessage(), e.getMessage(),
+				((ServletWebRequest) request).getRequest().getRequestURL().toString());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
 	}
 

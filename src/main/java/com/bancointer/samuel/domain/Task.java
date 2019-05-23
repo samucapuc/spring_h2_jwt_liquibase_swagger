@@ -43,11 +43,10 @@ public class Task {
 	private LocalDate createdAt;
 
 	@Version
-	@Column(name = "VERSION")
-	private int version;
+	private Integer version;
 	
 	@ManyToOne(optional = true)
-    @JoinColumn(name="ID_JOB", nullable=false)
+    @JoinColumn(name="ID_JOB", nullable=true)
 	@JsonIgnore
 	private Job job;
 

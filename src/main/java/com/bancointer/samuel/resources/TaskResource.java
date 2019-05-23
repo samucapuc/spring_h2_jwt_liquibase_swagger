@@ -15,6 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,7 +56,7 @@ public class TaskResource {
 	
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> createTask(@Valid @RequestBody TaskDTO taskDTO) {
-		taskDTO = taskService.salveTask(taskDTO);
+		taskDTO = taskService.createTask(taskDTO);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
 				.path("/{id}").buildAndExpand(taskDTO.getId()).toUri();
 		return ResponseEntity.created(uri).build();
@@ -65,5 +66,11 @@ public class TaskResource {
 	public ResponseEntity<Void> updateTask( @Valid @RequestBody TaskDTO taskDTO, @PathVariable() @NotNull(message = "{param.required}") @Min(1)  Integer id) {
 		taskService.updateTask(taskDTO, id);
 		return ResponseEntity.noContent().build();
+	}
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteTask( @PathVariable() @NotNull(message = "{param.required}") @Min(1)  Integer id) {
+		taskService.delete(id);
+		return ResponseEntity.ok().build();
 	}
 }
