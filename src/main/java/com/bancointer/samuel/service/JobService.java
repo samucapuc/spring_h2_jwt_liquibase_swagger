@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,10 @@ import org.springframework.util.CollectionUtils;
 import com.bancointer.samuel.domain.Job;
 import com.bancointer.samuel.domain.Task;
 import com.bancointer.samuel.dto.JobDTO;
+import com.bancointer.samuel.exceptions.InvalidResourceException;
+import com.bancointer.samuel.exceptions.ObjectDuplicateException;
 import com.bancointer.samuel.exceptions.ObjectNotFoundException;
+import com.bancointer.samuel.exceptions.SelfDependenciesException;
 import com.bancointer.samuel.repositories.JobRepository;
 import com.bancointer.samuel.utils.MessageUtils;
 
@@ -64,12 +68,6 @@ public class JobService {
 		return sumWeightJob1 > sumWeightJob2 ? -1 : 0;
 	}
 
-	private JobDTO converterEntityDTO(Job job) {
-		JobDTO jobDto = mapper.map(job, JobDTO.class);
-		return jobDto;
-	}
-	
-	
 	@Transactional(readOnly = true)
 	public JobDTO findById(Integer id) {
 		JobDTO jobDTO;
@@ -83,4 +81,71 @@ public class JobService {
 		return jobDTO;
 	}
 
+	public JobDTO createJob(JobDTO jobDTO) {
+		if (jobDTO.getId() != null) {
+			throw new InvalidResourceException(messageUtils.getMessageEnglish("resource.invalid"));
+		}
+		return salveJob(jobDTO);
+	}
+
+	public JobDTO salveJob(JobDTO jobDTO) {
+		validSelfDependencies(jobDTO, jobDTO.getId());
+		validDuplicateJob(jobDTO);
+		return converterEntityDTO(jobRepository.save(converterDTOEntity(jobDTO)));
+	}
+
+	private void validSelfDependencies(JobDTO jobDTO, Integer idJobSalve) {
+		if (jobDTO != null && jobDTO.getParentJob() != null && jobDTO.getParentJob().getId().equals(idJobSalve)) {
+			throw new SelfDependenciesException(messageUtils.getMessageEnglish("resource.self.dependencies",
+					new String[] { messageUtils.getMessageEnglish("entity.job.name"), "name", jobDTO.getName() }));
+		} else if (jobDTO != null) {
+			validSelfDependencies(jobDTO.getParentJob(), idJobSalve);
+		}
+	}
+
+	public JobDTO updateJob(JobDTO jobDTO, Integer id) {
+		// Job informed by user
+		Job jobEntered = converterDTOEntity(jobDTO);
+		// to valid if job exists in data base
+		findById(id);
+		Job jobSave = new Job();
+		BeanUtils.copyProperties(jobEntered, jobSave);
+		jobSave.setId(id);
+		return salveJob(converterEntityDTO(jobSave));
+	}
+
+	@Transactional(readOnly = true)
+	public List<Job> findByName(String name) {
+		return jobRepository.findByNameIgnoreCase(name);
+	}
+
+	private void validDuplicateJob(JobDTO jobDTO) {
+		List<Job> jobsWithSameName = findByName(jobDTO.getName());
+		if (jobsWithSameName.stream().anyMatch(t -> isDuplicate(t, jobDTO))) {
+			throw new ObjectDuplicateException(messageUtils.getMessageEnglish("resource.duplicated",
+					new String[] { messageUtils.getMessageEnglish("entity.job.name"), "name", jobDTO.getName() }));
+		}
+	}
+
+	private boolean isDuplicate(Job job, JobDTO jobDTO) {
+		if (job.getName().toLowerCase().equals(jobDTO.getName().toLowerCase())
+				&& (jobDTO.getId() == null || !job.getId().equals(jobDTO.getId()))) {
+			return true;
+		}
+		return false;
+	}
+
+	public void delete(Integer id) {
+		jobRepository.delete(converterDTOEntity(findById(id)));
+	}
+
+	private JobDTO converterEntityDTO(Job job) {
+		JobDTO jobDto = mapper.map(job, JobDTO.class);
+		return jobDto;
+	}
+
+	private Job converterDTOEntity(JobDTO jobDTO) {
+		Job job = mapper.map(jobDTO, Job.class);
+		return job;
+	}
 }
