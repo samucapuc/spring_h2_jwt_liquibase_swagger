@@ -48,7 +48,7 @@ public class TaskResourceTest extends SamuelApplicationTests {
 		when(taskRepository.findByCreatedAt(Mockito.any(LocalDate.class)))
 				.thenReturn(Arrays.asList(new Task(1, "First task", 5, true, LocalDate.now(), 0, null),
 						new Task(2, "Second task", 7, false, LocalDate.now(), 1, null)));
-		//when(mapper.map(Mockito.any(Task.class), Mockito.any(TaskDTO.class))).thenReturn(d);
+		when(mapper.map(Mockito.any(), Mockito.any())).thenReturn(new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0,null));
 		List<TaskDTO> task = taskService.findByCreateAt(LocalDate.now());
 		assertNotNull(task);
 		assertNotEquals(task.size(), 1);
@@ -72,6 +72,7 @@ public class TaskResourceTest extends SamuelApplicationTests {
 	public void mustFindOneTask() {
 		Optional<Task> taskOptional = Optional.of(new Task(1, "First task", 5, true, LocalDate.now(), 0, null));
 		when(taskRepository.findById(Mockito.any(Integer.class))).thenReturn(taskOptional);
+		when(mapper.map(Mockito.any(), Mockito.any())).thenReturn(new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0,null));
 		TaskDTO task = taskService.findById(1);
 		assertNotNull(task);
 	}
@@ -91,6 +92,8 @@ public class TaskResourceTest extends SamuelApplicationTests {
 		TaskDTO taskDTO = new TaskDTO(2, "Second task", 6, true, LocalDate.now(), 0,null);
 		Task task = new Task(2, "Second task", 6, true, LocalDate.now(), 0, null);
 		when(taskRepository.save(Mockito.any(Task.class))).thenReturn(task);
+		when(mapper.map(Mockito.any(Task.class), Mockito.any())).thenReturn(taskDTO);
+		when(mapper.map(Mockito.any(TaskDTO.class), Mockito.any())).thenReturn(task);
 		taskDTO = taskService.salveTask(taskDTO);
 		assertEquals(task.getId(), taskDTO.getId());
 	}
@@ -113,7 +116,9 @@ public class TaskResourceTest extends SamuelApplicationTests {
 		TaskDTO taskDTO1 = new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0,null);
 		TaskDTO taskDTO2 = new TaskDTO(1, "Third task", 5, true, LocalDate.now(), 0,null);
 		when(taskRepository.save(Mockito.any(Task.class))).thenReturn(task);
-		taskDTO2 = taskService.salveTask(taskDTO1);
+		when(mapper.map(Mockito.any(Task.class), Mockito.any())).thenReturn(taskDTO1);
+		when(mapper.map(Mockito.any(TaskDTO.class), Mockito.any())).thenReturn(task);
+		taskDTO1 = taskService.salveTask(taskDTO1);
 		assertNotEquals(taskDTO2.getName(), taskDTO1.getName());
 	}
 

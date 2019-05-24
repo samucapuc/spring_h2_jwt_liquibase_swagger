@@ -21,7 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.bancointer.samuel.domain.Job;
+import com.bancointer.samuel.domain.Task;
 import com.bancointer.samuel.dto.JobDTO;
+import com.bancointer.samuel.dto.TaskDTO;
 import com.bancointer.samuel.exceptions.ObjectDuplicateException;
 import com.bancointer.samuel.exceptions.ObjectNotFoundException;
 import com.bancointer.samuel.exceptions.SelfDependenciesException;
@@ -73,6 +75,7 @@ public class JobResourceTest extends SamuelApplicationTests {
 	public void mustFindOneJob() {
 		Optional<Job> jobOptional = Optional.of(new Job(1, "FIRST JOB", true, null, null, 0));
 		when(jobRepository.findById(Mockito.any(Integer.class))).thenReturn(jobOptional);
+		when(mapper.map(Mockito.any(), Mockito.any())).thenReturn(new JobDTO(1, "FIRST JOB", true, null, null, 0));
 		JobDTO job = jobService.findById(1);
 		assertNotNull(job);
 	}
