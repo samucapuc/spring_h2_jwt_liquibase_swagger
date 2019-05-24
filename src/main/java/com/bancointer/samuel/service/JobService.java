@@ -44,14 +44,14 @@ public class JobService {
 	@Transactional(readOnly = true)
 	public Page<JobDTO> findAllWithPagination(boolean sortByWeight, Pageable pageAble) {
 		Page<Job> pageJob = jobRepository.findAll(pageAble);
-		return !sortByWeight ? pageJob.map(this::converterEntityDTO) : sort(pageJob);
+		return !sortByWeight ? pageJob.map(this::converterEntityDTO) : sort(pageJob).map(this::converterEntityDTO);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Page<JobDTO> sort(Page<Job> pageJob) {
+	private Page<Job> sort(Page<Job> pageJob) {
 		List<Job> listAux = pageJob.getContent().stream().collect(Collectors.toList());
 		sort(listAux);
-		Page<JobDTO> newPage = new PageImpl(listAux, pageJob.getPageable(), pageJob.getTotalElements());
+		Page<Job> newPage = new PageImpl(listAux, pageJob.getPageable(), pageJob.getTotalElements());
 		return newPage;
 	}
 
