@@ -88,7 +88,7 @@ public class TaskResourceTest extends SamuelApplicationTests {
 
 	@Test
 	public void mustCreateTask() {
-		TaskDTO taskDTO = new TaskDTO(2, "Second task", 6, true, LocalDate.now(), 0);
+		TaskDTO taskDTO = new TaskDTO(2, "Second task", 6, true, LocalDate.now(), 0,null);
 		Task task = new Task(2, "Second task", 6, true, LocalDate.now(), 0, null);
 		when(taskRepository.save(Mockito.any(Task.class))).thenReturn(task);
 		taskDTO = taskService.salveTask(taskDTO);
@@ -97,7 +97,7 @@ public class TaskResourceTest extends SamuelApplicationTests {
 
 	@Test(expected = ObjectDuplicateException.class)
 	public void mustValidDuplicatedTask() {
-		TaskDTO taskDTO = new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0);
+		TaskDTO taskDTO = new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0,null);
 		when(taskRepository.findByNameIgnoreCase(Mockito.any(String.class)))
 				.thenReturn(Arrays.asList(new Task(2, "First task", 8, false, LocalDate.now(), 0, null)))
 				.thenThrow(ObjectDuplicateException.class);
@@ -110,8 +110,8 @@ public class TaskResourceTest extends SamuelApplicationTests {
 	@Test
 	public void mustUpdateTask() {
 		Task task = new Task(1, "First task", 5, true, LocalDate.now(), 0, null);
-		TaskDTO taskDTO1 = new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0);
-		TaskDTO taskDTO2 = new TaskDTO(1, "Third task", 5, true, LocalDate.now(), 0);
+		TaskDTO taskDTO1 = new TaskDTO(1, "First task", 5, true, LocalDate.now(), 0,null);
+		TaskDTO taskDTO2 = new TaskDTO(1, "Third task", 5, true, LocalDate.now(), 0,null);
 		when(taskRepository.save(Mockito.any(Task.class))).thenReturn(task);
 		taskDTO2 = taskService.salveTask(taskDTO1);
 		assertNotEquals(taskDTO2.getName(), taskDTO1.getName());

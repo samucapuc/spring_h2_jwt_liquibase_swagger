@@ -5,6 +5,7 @@
 	    IS_ACTIVE       BOOLEAN,
 	    NAME_JOB        VARCHAR(255),
 	    ID_PARENT_JOB   BIGINT,
+	    VERSION        INTEGER,
 	    PRIMARY KEY ( ID )
 	);
 	
@@ -25,6 +26,20 @@
 	ALTER TABLE TASK ADD CONSTRAINT FK_TASK_JOB FOREIGN KEY ( ID_JOB )
 	    REFERENCES JOB;
 	    
+	INSERT INTO JOB (
+	    IS_ACTIVE   ,
+	    NAME_JOB    ,
+	    VERSION 	,
+	    ID_PARENT_JOB       
+	) VALUES(TRUE,'FIRST JOB',0,NULL);	   
+	
+	INSERT INTO JOB (
+	    IS_ACTIVE   ,
+	    NAME_JOB    ,
+	    VERSION 	,
+	    ID_PARENT_JOB       
+	) VALUES(TRUE,'SECOND JOB',0,1);		 
+	    
 	INSERT INTO TASK (
 	    IS_COMPLETED   ,
 	    CREATED_AT     ,
@@ -42,5 +57,23 @@
 	    VERSION        ,
 	    WEIGHT         ,
 	    ID_JOB         
-	) VALUES(FALSE,CURRENT_DATE(),'SECOND TASK',0,8,NULL);
+	) VALUES(FALSE,CURRENT_DATE(),'SECOND TASK',0,1,1);
+	
+	INSERT INTO TASK (
+	    IS_COMPLETED   ,
+	    CREATED_AT     ,
+	    NAME_TASK      ,
+	    VERSION        ,
+	    WEIGHT         ,
+	    ID_JOB         
+	) VALUES(TRUE,CURRENT_DATE(),'THIRD TASK',0,1,2);
+	
+	INSERT INTO TASK (
+	    IS_COMPLETED   ,
+	    CREATED_AT     ,
+	    NAME_TASK      ,
+	    VERSION        ,
+	    WEIGHT         ,
+	    ID_JOB         
+	) VALUES(FALSE,CURRENT_DATE(),'FOURTH TASK',0,1,2);
 --rollback TRUNCATE TABLE TASK;

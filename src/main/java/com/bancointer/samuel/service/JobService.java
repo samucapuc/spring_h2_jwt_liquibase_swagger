@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.bancointer.samuel.domain.Job;
 import com.bancointer.samuel.domain.Task;
@@ -83,14 +84,15 @@ public class JobService {
 
 	public JobDTO createJob(JobDTO jobDTO) {
 		if (jobDTO.getId() != null) {
-			throw new InvalidResourceException(messageUtils.getMessageEnglish("resource.invalid"));
+			throw new InvalidResourceException(messageUtils.getMessageEnglish("resource.invalid.post",
+					new String[] { messageUtils.getMessageEnglish("entity.job.name"), "name", jobDTO.getName() }),RequestMethod.POST);
 		}
 		return salveJob(jobDTO);
 	}
 
 	public JobDTO salveJob(JobDTO jobDTO) {
-		validSelfDependencies(jobDTO, jobDTO.getId());
 		validDuplicateJob(jobDTO);
+		validSelfDependencies(jobDTO, jobDTO.getId());
 		return converterEntityDTO(jobRepository.save(converterDTOEntity(jobDTO)));
 	}
 
@@ -104,6 +106,7 @@ public class JobService {
 	}
 
 	public JobDTO updateJob(JobDTO jobDTO, Integer id) {
+		validURIEWithIdPUT(jobDTO, id);
 		// Job informed by user
 		Job jobEntered = converterDTOEntity(jobDTO);
 		// to valid if job exists in data base
@@ -112,6 +115,13 @@ public class JobService {
 		BeanUtils.copyProperties(jobEntered, jobSave);
 		jobSave.setId(id);
 		return salveJob(converterEntityDTO(jobSave));
+	}
+
+	private void validURIEWithIdPUT(JobDTO jobDTO, Integer id) {
+		if (jobDTO.getId()!=null&&!id.equals(jobDTO.getId())) {
+			throw new InvalidResourceException(messageUtils.getMessageEnglish("resource.invalid.put",
+					new String[] { messageUtils.getMessageEnglish("entity.job.name"), "name", jobDTO.getName() }),RequestMethod.PUT);
+		}
 	}
 
 	@Transactional(readOnly = true)

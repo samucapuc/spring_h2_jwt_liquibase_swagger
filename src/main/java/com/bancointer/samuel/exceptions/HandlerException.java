@@ -1,6 +1,7 @@
 package com.bancointer.samuel.exceptions;
 
 import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -36,10 +37,23 @@ public class HandlerException {
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 	@ResponseBody
 	public ResponseEntity<StandardError> objectNotFound(InvalidResourceException e, WebRequest request) {
-		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
-				messageUtils.getMessageEnglish("resource.invalid.title"), e.getMessage(),
-				messageUtils.getMessageEnglish("resource.invalid.details"),
-				((ServletWebRequest) request).getRequest().getRequestURL().toString());
+		StandardError err;
+		switch (e.getHttpMethod()) {
+		case POST:
+			err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
+					messageUtils.getMessageEnglish("resource.invalid.post.title"), e.getMessage(),
+					messageUtils.getMessageEnglish("resource.invalid.post.details"),
+					((ServletWebRequest) request).getRequest().getRequestURL().toString());
+			break;
+
+		default:
+			err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
+					messageUtils.getMessageEnglish("resource.invalid.put.title"), e.getMessage(),
+					messageUtils.getMessageEnglish("resource.invalid.put.details"),
+					((ServletWebRequest) request).getRequest().getRequestURL().toString());
+			break;
+		}
+
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
 	}
 
@@ -86,6 +100,19 @@ public class HandlerException {
 				messageUtils.getMessageEnglish("resource.self.dependencies.title"),
 				messageUtils.getMessageEnglish("resource.self.dependencies"),
 				messageUtils.getMessageEnglish("resource.self.dependencies.details"),
+				((ServletWebRequest) request).getRequest().getRequestURL().toString());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+	}
+
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	@ResponseBody
+	public ResponseEntity<StandardError> DataIntegrityViolationException(DataIntegrityViolationException e,
+			WebRequest request) {
+		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
+				messageUtils.getMessageEnglish("data.integrity.violation.exception.title"),
+				messageUtils.getMessageEnglish("data.integrity.violation.exception"),
+				messageUtils.getMessageEnglish("data.integrity.violation.exception.details"),
 				((ServletWebRequest) request).getRequest().getRequestURL().toString());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
 	}
