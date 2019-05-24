@@ -21,9 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.bancointer.samuel.domain.Job;
-import com.bancointer.samuel.domain.Task;
 import com.bancointer.samuel.dto.JobDTO;
-import com.bancointer.samuel.dto.TaskDTO;
 import com.bancointer.samuel.exceptions.ObjectDuplicateException;
 import com.bancointer.samuel.exceptions.ObjectNotFoundException;
 import com.bancointer.samuel.exceptions.SelfDependenciesException;
