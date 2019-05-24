@@ -1,19 +1,19 @@
 package com.bancointer.samuel.exceptions;
 
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.http.HttpMethod;
 
 
 public class InvalidResourceException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 	
-	private RequestMethod httpMethod;
+	private HttpMethod httpMethod;
 	
 	public InvalidResourceException(String msg) {
 		super(msg);
 	}
 	
-	public InvalidResourceException(String msg, RequestMethod httpMethod) {
+	public InvalidResourceException(String msg, HttpMethod httpMethod) {
 		super(msg);
 		this.setHttpMethod(httpMethod);
 	}
@@ -22,11 +22,11 @@ public class InvalidResourceException extends RuntimeException {
 		super(msg, cause);
 	}
 
-	public RequestMethod getHttpMethod() {
+	public HttpMethod getHttpMethod() {
 		return httpMethod;
 	}
 
-	public void setHttpMethod(RequestMethod httpMethod) {
+	public void setHttpMethod(HttpMethod httpMethod) {
 		this.httpMethod = httpMethod;
 	}
 

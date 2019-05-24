@@ -40,7 +40,7 @@ public class Job implements Serializable {
 	@JoinColumn(name = "ID_PARENT_JOB")
 	private Job parentJob;
 
-	@OneToMany(mappedBy = "job", targetEntity = Task.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "job", targetEntity = Task.class, fetch = FetchType.LAZY, cascade = {CascadeType.REFRESH,CascadeType.REMOVE } )
 	private List<Task> tasks;
 	
 	@Version

@@ -9,10 +9,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.bancointer.samuel.domain.Job;
 import com.bancointer.samuel.domain.Task;
@@ -33,6 +33,7 @@ public class JobService {
 	private final JobRepository jobRepository;
 	private final ModelMapper mapper;
 	private final MessageUtils messageUtils;
+	private final TaskService taskService;
 
 	@Transactional(readOnly = true)
 	public List<JobDTO> findAll(boolean sortByWeight) {
@@ -85,15 +86,22 @@ public class JobService {
 	public JobDTO createJob(JobDTO jobDTO) {
 		if (jobDTO.getId() != null) {
 			throw new InvalidResourceException(messageUtils.getMessageEnglish("resource.invalid.post",
-					new String[] { messageUtils.getMessageEnglish("entity.job.name"), "name", jobDTO.getName() }),RequestMethod.POST);
+					new String[] { messageUtils.getMessageEnglish("entity.job.name"), "name", jobDTO.getName() }),HttpMethod.POST);
 		}
 		return salveJob(jobDTO);
 	}
 
 	public JobDTO salveJob(JobDTO jobDTO) {
 		validDuplicateJob(jobDTO);
+		if(!CollectionUtils.isEmpty(jobDTO.getTasks())) {
+			salveListTask(jobDTO);
+		}
 		validSelfDependencies(jobDTO, jobDTO.getId());
 		return converterEntityDTO(jobRepository.save(converterDTOEntity(jobDTO)));
+	}
+
+	private void salveListTask(JobDTO jobDTO) {
+			jobDTO.getTasks().forEach(taskService::salveTask);
 	}
 
 	private void validSelfDependencies(JobDTO jobDTO, Integer idJobSalve) {
@@ -120,7 +128,7 @@ public class JobService {
 	private void validURIEWithIdPUT(JobDTO jobDTO, Integer id) {
 		if (jobDTO.getId()!=null&&!id.equals(jobDTO.getId())) {
 			throw new InvalidResourceException(messageUtils.getMessageEnglish("resource.invalid.put",
-					new String[] { messageUtils.getMessageEnglish("entity.job.name"), "name", jobDTO.getName() }),RequestMethod.PUT);
+					new String[] { messageUtils.getMessageEnglish("entity.job.name"), "name", jobDTO.getName() }),HttpMethod.PUT);
 		}
 	}
 

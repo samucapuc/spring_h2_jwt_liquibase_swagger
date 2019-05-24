@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +57,8 @@ public class TaskService {
 
 	public TaskDTO createTask(TaskDTO taskDTO) {
 		if (taskDTO.getId() != null) {
-			throw new InvalidResourceException(messageUtils.getMessageEnglish("resource.invalid"));
+			throw new InvalidResourceException(messageUtils.getMessageEnglish("resource.invalid.post",
+					new String[] { messageUtils.getMessageEnglish("entity.task.name"), "name", taskDTO.getName() }),HttpMethod.POST);
 		}
 		return salveTask(taskDTO);
 	}
@@ -82,6 +84,7 @@ public class TaskService {
 		return taskRepository.findByNameIgnoreCase(name);
 	}
 
+	
 	private void validDuplicateTask(TaskDTO taskDTO) {
 		List<Task> tasksWithSameName = findByName(taskDTO.getName());
 		if (tasksWithSameName.stream().anyMatch(t -> isDuplicate(t, taskDTO))) {

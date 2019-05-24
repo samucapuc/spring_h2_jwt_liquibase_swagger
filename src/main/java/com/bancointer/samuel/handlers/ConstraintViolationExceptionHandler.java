@@ -1,4 +1,4 @@
-package com.bancointer.samuel.exceptions;
+package com.bancointer.samuel.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
+import com.bancointer.samuel.exceptions.ErrorResponse;
+import com.bancointer.samuel.exceptions.StandardError;
 import com.bancointer.samuel.utils.MessageUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -57,7 +59,7 @@ public class ConstraintViolationExceptionHandler {
 			HttpServletRequest request) {
 		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.BAD_REQUEST.value(),
 				messageUtils.getMessageEnglish("error.conversion"), e.getMessage(), e.getMessage(),
-				((ServletWebRequest) request).getRequest().getRequestURL().toString());
+				request.getRequestURL().toString());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
 	}
 
