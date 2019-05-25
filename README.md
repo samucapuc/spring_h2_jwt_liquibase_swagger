@@ -1,5 +1,3 @@
-# Português
-
 ##API REST desenvolvida para pretenção a vaga de desenvolvedor no banco Inter
 ###By Samuel Oliveira Chaves
 
@@ -13,13 +11,13 @@
 6. Caso não tenha o JAVA_HOME configurado, deve ser apontado para a pasta de instalação do JRE (set JAVA_HOME="<DIRETORIO_JAVA>")
 7. A autenticação é realizada através de token gerado pelo JWT através do serviço /login passando as credenciais via JSON:
 	1. Para acesso ADMIN (POST,PUT,DELETE):
-		{
+		> {
 			"email":"admin@bancointer.com.br","password":"acessoAdmin123"
-		}
+		> }
 	2. Para acesso CONVIDADO (GET):
-		{
+		> {
 			"email":"somenteleitura@bancointer.com.br","password":"acessoConvidado123"
-		}	
+		> }	
 8. Acesse a documentação para mais detalhes em http://localhost:8080/swagger-ui.html#!/default/login (Preciso logar, pegar o token e utilizar nos acessos dos serviços)
 ###Testando a API
 1. Vá para o diretório da aplicação
