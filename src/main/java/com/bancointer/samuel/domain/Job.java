@@ -30,7 +30,7 @@ public class Job implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Column(name = "NAME_JOB")
+	@Column(name = "NAME_JOB", unique = true)
 	private String name;
 
 	@Column(name = "IS_ACTIVE")

@@ -28,7 +28,7 @@ public class Task {
 	@Column(name = "ID_TASK")
 	private Integer id;
 
-	@Column(name = "NAME_TASK")
+	@Column(name = "NAME_TASK", unique = true)
 	private String name;
 
 	@Column(name = "WEIGHT")

@@ -19,6 +19,7 @@
 			"email":"somenteleitura@bancointer.com.br","password":"acessoConvidado123"
 		> }	
 8. Acesse a documentação para mais detalhes em http://localhost:8080/swagger-ui.html#!/default/login (Preciso logar, pegar o token e utilizar nos acessos dos serviços)
+9. Os endpoints podem ser acessados também pelo POSTMAN no link https://www.getpostman.com/collections/f882336d5cb856ef66e0
 ###Testando a API
 1. Vá para o diretório da aplicação
 2. Corra o comando ./mvnw test
