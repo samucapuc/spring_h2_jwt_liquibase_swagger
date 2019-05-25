@@ -1,7 +1,7 @@
 ##API REST desenvolvida para pretenção a vaga de desenvolvedor no banco Inter
 ###By Samuel Oliveira Chaves
 
-###Antes de executar a aplicação é preciso levar em conta:
+###Leia me antes de prosseguir:
 
 1. Os scripts iniciais são executados utilizando **liquibase**
 2. Foi utilizado o banco de dados em memória **H2**
